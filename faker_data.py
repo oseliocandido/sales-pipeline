@@ -18,10 +18,15 @@ if __name__ == "__main__":
 
 # - nan string instead None
 # - Additional double quote
-# - Unecessary Columns
-# - string in numeric types and vice versa
-# - Expected this format as string  in timestamp fields
-#   -- Tue Dec 30 2014 12:00:00 GMT-0800 (PST)
-# - Duplicate Primary keys
-# - Upper-LowerCase
-# - Only Accepted Values
+
+# Bronze
+# # - Only Accepted Values
+# Silver
+# # - Unecessary Columns\
+#  Upper-LowerCase
+# # - string in numeric types and vice versa
+# # - Expected this format as string  in timestamp fields
+# #   -- Tue Dec 30 2014 12:00:00 GMT-0800 (PST)
+
+# Bronze to silver
+# # - Duplicate Primary keys
