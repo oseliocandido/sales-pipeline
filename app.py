@@ -1,45 +1,56 @@
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import dotenv_values
 from pathlib import Path
 from tasks.s3.client import download_s3, upload_s3
+import time
+from subpro import call_dbt
+from streamlit_functions import pydantic_validation
+from typing import List
 import pandas as pd
 
 
-date_now = datetime.now()
-year = date_now.strftime("%Y")
-month = date_now.strftime("%m")
-day = date_now.strftime("%d")
+def main() -> None:
+    st.set_page_config(
+        page_title="Data",
+        page_icon="🧊",
+        layout="wide",
+        initial_sidebar_state="expanded",
+        menu_items={
+            # FIXME: DOING nothing
+            "Get Help": "https://www.extremelycoolapp.com/help",
+            "Report a bug": "https://www.extremelycoolapp.com/bug",
+            "About": "# This is a header. This is an *extremely* cool app!",
+        },
+    )
 
-
-config = dotenv_values()
-st.set_page_config(page_title="Inicio do app", page_icon="🌐")
-
-path = Path.cwd() / "data" / "Product.csv"
-
-if st.button(label="Upload s3"):
-    with st.spinner("Uploading to s3..."):
-        status = upload_s3(
-            file_name=path,
-            bucket=config["BUCKET"],
-            key=f"{year}/{month}/{day}/{path.name}",
+    # TODO: Put description nice here maybe witf faker
+    st.sidebar.markdown("# Pipeline")
+    st.sidebar.write(
+        "Generate fake data with local csvs in append/overwrite mode and valid/invalid data contract"
+    )
+    col1, col2 = st.sidebar.columns([1, 1])
+    with col1:
+        overwrite_flag = st.radio(
+            label="Generation Mode", options=["Overwrite", "Append"], key=300
         )
-        if status:
-            st.success("Arquivo upado com sucesso")
-        else:
-            st.error("Deu ruim")
+    with col2:
+        valid_data_flag = st.radio(
+            label="Data Contract Type", options=["Valid", "Invalid"], key=500
+        )
+    status = st.sidebar.button("Generate Data", use_container_width=True)
 
-# Download from S3 and render in memory
-if st.button("Download from S3"):
-    with st.spinner("Downloading from S3..."):
-        file_downloaded = download_s3(config["BUCKET"], "2024/05/17/Product.csv")
+    # FIXME: Change this to another place
+    config = dotenv_values()
 
-    if file_downloaded:
-        st.success("Download successful!")
-        with st.spinner("Rendering...."):
-            s3_data = file_downloaded
-            s3_data.seek(0)
-            df = pd.read_csv(s3_data, engine="pyarrow", delimiter="\t")
-            st.dataframe(df)
-    else:
-        st.error("Download failed. Check logs for details.")
+    now = datetime.now()
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+    day = now.strftime("%d")
+
+    base_data_path = Path.cwd() / "data"
+    read_files_path = base_data_path.glob(f"{valid_data_flag.lower()}/*.csv")
+
+
+if __name__ == "__main__":
+    main()
