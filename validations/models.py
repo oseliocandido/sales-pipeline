@@ -1,13 +1,7 @@
-from pydantic import BaseModel, Field, field_validator, PositiveFloat
+from pydantic import BaseModel, Field, field_validator
 from enum import Enum
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional
-
-# Money validation
-# Sure, here are some validation rules for monetary values:
-# The monetary value should start with a currency symbol (e.g., '$' for US dollars).
-# The monetary value should have a decimal point followed by exactly two digits for cents (e.g., '.00' in '$10.00').
-# The monetary value may have a negative sign at the beginning (e.g., '-$10.00').
 
 
 class CategoryEnum(Enum):
@@ -20,11 +14,37 @@ class CategoryEnum(Enum):
 class Products(BaseModel):
     ProductKey: int
     Product: str
+    Standard_Cost: str = Field(alias="Standard Cost")
+    Color: Optional[str]
+    Subcategory: str
     Category: CategoryEnum = Field(
         description="Category of the product", choices=CategoryEnum
     )
-    Standard_Cost: str = Field(alias="Standard Cost")
-    Color: Optional[str]
+    Background_Color: str = Field(default=None, alias="Background Color")
+    Format_Font_Color_Format: str = Field(
+        default=None, alias="Format	Font Color Format", max_length=7
+    )
+
+
+class Sales(BaseModel):
+    SalesOrderNumber: str
+    ProductKey: int
+    Quantity: int = Field(gt=0)
+    Unit_Price: str = Field(alias="Unit Price")
+
+    @field_validator("Unit_Price")
+    @classmethod
+    def parse_currency_string(cls, value):
+        if value[0] == "$":
+            try:
+                value = float(value.replace(",", "").replace("$", ""))
+                if value < 0:
+                    raise ValueError("Not Allowed Negative Currency")
+            except ValueError:
+                raise ValueError("Invalid currency format")
+            return value
+        else:
+            raise ValueError("No $ as first char")
 
 
 class Target(BaseModel):
@@ -41,29 +61,7 @@ class Target(BaseModel):
             raise ValueError("Invalid date format")
         return value
 
-
-class SalesOrder(BaseModel):
-    SalesOrderNumber: str
-    OrderDate: str
-    ProductKey: int
-    ResellerKey: int
-    EmployeeKey: int
-    SalesTerritoryKey: int
-    Quantity: int
-    UnitPrice: str = Field(alias="Unit Price")
-    Sales: str
-    Cost: str
-
-    @field_validator("OrderDate")
-    @classmethod
-    def parse_order_date(cls, value):
-        try:
-            datetime.strptime(value, "%A, %B %d, %Y")
-        except:
-            raise ValueError("Invalid date format")
-        return value
-
-    @field_validator("UnitPrice", "Sales", "Cost")
+    @field_validator("Target")
     @classmethod
     def parse_currency_string(cls, value):
         if value[0] == "$":
@@ -75,13 +73,36 @@ class SalesOrder(BaseModel):
                 raise ValueError("Invalid currency format")
             return value
         else:
-            raise ValueError("No $ in first char")
+            raise ValueError("No $ as first char")
+
+
+class SalesOrder(BaseModel):
+    SalesOrderNumber: str
+    OrderDate: str
+    ResellerKey: int
+    EmployeeKey: int
+    SalesTerritoryKey: int
+
+    @field_validator("OrderDate")
+    @classmethod
+    def parse_order_date(cls, value):
+        try:
+            datetime.strptime(value, "%A, %B %d, %Y")
+        except:
+            raise ValueError("Invalid date format")
+        return value
+
+
+class SalesPerson(BaseModel):
+    EmployeeKey: int
+    EmployeeID: int
+    Salesperson: str
+    Title: str
+    UPN: str
 
 
 # Ideias
 # -- Replace wrong string by correct ones
-# --
-
 
 # # Some signatures have quotes around them, unneeded
 # df["signature"] = df["signature"].str.replace('"', "")
