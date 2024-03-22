@@ -1,22 +1,6 @@
 import streamlit as st
-from datetime import datetime
-from dotenv import dotenv_values
 from pathlib import Path
-from tasks.s3.client import upload_s3
-import time
-from subpro import call_dbt
-from controllers import pydantic_validation
-from typing import List
-from pathlib import PosixPath
-from views import pydantic_view, upload_s3_view, download_s3_view
-
-
-# FIXME: Change this to another place
-config = dotenv_values()
-now = datetime.now()
-year = now.strftime("%Y")
-month = now.strftime("%m")
-day = now.strftime("%d")
+from views import pydantic_view, upload_s3_view, transformation_to_postgres_view
 
 
 def main() -> None:
@@ -35,36 +19,44 @@ def main() -> None:
 
     # TODO: Put description nice here maybe witf faker
     st.sidebar.markdown("# Pipeline")
-    st.sidebar.write(
-        "Generate fake data with local csvs in append/overwrite mode and valid/invalid data contract"
-    )
+    st.sidebar.write("Building....")
     valid_data_flag = st.sidebar.radio(
         label="Data Contract Type", options=["Valid", "Invalid"], key=500
     )
 
-    status = st.sidebar.button("Generate Data", use_container_width=True)
-
+    # Local Path File
     base_data_path = Path.cwd() / "data"
-    read_files_path = list(base_data_path.glob(f"{valid_data_flag.lower()}/*.csv"))
+    local_files_path = list(base_data_path.glob(f"{valid_data_flag.lower()}/*.csv"))
 
     # App Flow
-    pydantic_status = pydantic_view(read_files_path)
-    if not pydantic_status:
-        st.sidebar.success("Data Contract 🚀")
-        upload_s3_status = upload_s3_view(read_files_path)
-        if not upload_s3_status:
-            st.sidebar.success("Upload to S3 🚀")
-            download_s3_status = download_s3_view(read_files_path)
-            if download_s3_status:
-                st.sidebar.success("Download from S3 🚀")
+    upload_s3_status = upload_s3_view(local_files_path)
+    if not upload_s3_status:
+        st.sidebar.success("Upload to S3 - Bronze 🚀")
+        pydantic_status = pydantic_view(local_files_path)
+        if not pydantic_status:
+            st.sidebar.success("Data Contract 🚀")
+            transformation_to_postgres_status = transformation_to_postgres_view(
+                local_files_path
+            )
+            if transformation_to_postgres_status:
+                st.sidebar.success("Tables Inserted with success 🚀")
+                # dbt_status = dbt_view(local_files_path)
+                # if not dbt_status:
+                #     st.sidebar.success('Dbt run with sucess 🚀')
+                #     creating_dash = dasboard_view(local_files_path)
+                # else:
+                #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
+                #     st.stop()
             else:
-                st.sidebar.error("Download failed! Aborting Pipeline... ❌")
+                st.sidebar.error(
+                    "Error inserting rows to tables ! Aborting Pipeline... ❌"
+                )
                 st.stop()
         else:
-            st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
+            st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
             st.stop()
     else:
-        st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
+        st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
         st.stop()
 
 
@@ -117,26 +109,6 @@ if __name__ == "__main__":
 #         time.sleep(1)
 #     st.success("Done!")
 
-
-# config = dotenv_values()
-# st.set_page_config(page_title="Inicio do app", page_icon="🌐")
-
-# files = [Path.cwd() / "data"  / "Target.csv",
-#          Path.cwd() / "data"  / "Products.csv"]
-# #csv_files = files_path.glob("*.csv")
-
-
-# if st.button(label='Validate Data'):
-#     for file in files:
-#         st.write(f'Validating table {file.name.upper()}')
-#         validation_errors = validate.validate_model(file)
-#         if not validation_errors:
-#             st.write('All data is valid')
-#         else:
-#             for error in validation_errors:
-#                 st.error(error)
-
-
 # if st.button(label="Upload s3"):
 #     with st.spinner("Uploading to s3..."):
 #         status = upload_s3(
@@ -163,17 +135,6 @@ if __name__ == "__main__":
 #             st.dataframe(df)
 #     else:
 #         st.error("Download failed. Check logs for details.")
-
-
-# TODO:
-# Define min_date and max_date inputs with proper defaults and constraints
-# Removed for while. Still thinkgin what is best to do it
-# min_date = st.sidebar.date_input(label='Min Factual Date', min_value=now, value=now,key=10)
-# max_date = st.sidebar.date_input(label='Max Factual Date', min_value=min_date, value=min_date+timedelta(days=5), max_value=min_date + timedelta(days=10), key=2)
-
-# tr_per_day = st.number_input(label='Orders per Day',step=1)
-# prod_per_day = st.number_input(label='Products per Order',step=1)
-
 
 # if status == 1:
 #     pathzinho = 'asasasas'
