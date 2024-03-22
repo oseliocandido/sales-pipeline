@@ -42,7 +42,7 @@ class TableProcessor:
     def __init__(self, path: PosixPath):
         env_vars = dotenv_values(".env")
         db_username = env_vars["DB_USERNAME"]
-        db_password = env_vars["DB_PASSWORD"]
+        db_password = env_vars["POSTGRES_PASSWORD"]
         db_host = env_vars["DB_HOST"]
         db_port = env_vars["DB_PORT"]
         db_name = env_vars["DB_NAME"]
