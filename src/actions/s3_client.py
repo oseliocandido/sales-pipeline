@@ -3,6 +3,7 @@ from dotenv import dotenv_values
 from botocore.exceptions import ClientError
 from pathlib import PosixPath
 from boto3 import client
+from utils.logger import logger
 
 config = dotenv_values()
 
@@ -20,14 +21,17 @@ class S3Tasks:
     def upload_s3(self, file_name: PosixPath, bucket: str, key: str) -> bool:
         try:
             self.s3_client.upload_file(Filename=file_name, Bucket=bucket, Key=key)
-        except ClientError:
+        except ClientError as error:
+            logger.error(error)
             return False
         return True
 
-    def download_s3(self, bucket: str, key: str) -> BytesIO:
-        s3_io_data = BytesIO()
-        try:
-            self.s3_client.download_fileobj(bucket, key, s3_io_data)
-        except ClientError as e:
-            return False
-        return s3_io_data
+    ## Not Used for while!
+    # def download_s3(self, bucket: str, key: str) -> BytesIO:
+    #     s3_io_data = BytesIO()
+    #     try:
+    #         self.s3_client.download_fileobj(bucket, key, s3_io_data)
+    #     except ClientError as error:
+    #         logger.error(error)
+    #         return False
+    #     return s3_io_data

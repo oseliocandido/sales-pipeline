@@ -1,8 +1,9 @@
 from typing import Callable
 import pandas as pd
 from sqlalchemy import create_engine
-from pathlib import PosixPath, Path
+from pathlib import PosixPath
 from dotenv import dotenv_values
+from utils.logger import logger
 
 
 class TableTransformer:
@@ -56,15 +57,19 @@ class TableProcessor:
         dataframe = pd.read_csv(
             self.data, engine="pyarrow", quotechar='"', delimiter="\t"
         )
-        transform_function = TableTransformer.transform(self.name)
-        transformed_data = transform_function(dataframe)
-        rows = transformed_data.to_sql(
-            name=self.name,
-            if_exists="append",
-            con=self.engine,
-            method="multi",
-            index=False,
-        )
+        try:
+            transform_function = TableTransformer.transform(self.name)
+            transformed_data = transform_function(dataframe)
+            rows = transformed_data.to_sql(
+                name=self.name,
+                if_exists="append",
+                con=self.engine,
+                method="multi",
+                index=False,
+            )
+        except Exception as error:
+            logger.error(error)
+            return False
         return rows
 
 

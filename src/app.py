@@ -1,6 +1,8 @@
 import streamlit as st
 from pathlib import Path
-from views import pydantic_view, upload_s3_view, transformation_to_postgres_view
+from views.views import pydantic_view
+from views.views import upload_s3_view
+from views.views import transformation_to_postgres_view
 
 
 def main() -> None:
@@ -25,39 +27,68 @@ def main() -> None:
     )
 
     # Local Path File
-    base_data_path = Path.cwd() / "data"
-    local_files_path = list(base_data_path.glob(f"{valid_data_flag.lower()}/*.csv"))
+    base_data_path = Path.cwd().parent / "data"
+    local_files_path = list(
+        base_data_path.glob(f"{valid_data_flag.lower()}/Target.csv")
+    )
 
     # App Flow
-    upload_s3_status = upload_s3_view(local_files_path)
-    if not upload_s3_status:
-        st.sidebar.success("Upload to S3 - Bronze 🚀")
-        pydantic_status = pydantic_view(local_files_path)
-        if not pydantic_status:
-            st.sidebar.success("Data Contract 🚀")
-            transformation_to_postgres_status = transformation_to_postgres_view(
-                local_files_path
-            )
-            if transformation_to_postgres_status:
-                st.sidebar.success("Tables Inserted with success 🚀")
-                # dbt_status = dbt_view(local_files_path)
-                # if not dbt_status:
-                #     st.sidebar.success('Dbt run with sucess 🚀')
-                #     creating_dash = dasboard_view(local_files_path)
-                # else:
-                #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
-                #     st.stop()
-            else:
-                st.sidebar.error(
-                    "Error inserting rows to tables ! Aborting Pipeline... ❌"
-                )
-                st.stop()
-        else:
-            st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
-            st.stop()
-    else:
-        st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
-        st.stop()
+    # upload_s3_errors = upload_s3_view(local_files_path)
+    # if not upload_s3_errors:
+    #     st.sidebar.success("Upload to S3 🚀")
+    #     pydantic_errors = pydantic_view(local_files_path)
+    #     if not pydantic_errors:
+    #         st.sidebar.success("Data Contract 🚀")
+    #         transformation_to_postgres_errors = transformation_to_postgres_view(
+    #             local_files_path
+    #         )
+    #         if transformation_to_postgres_errors:
+    #             st.sidebar.success("Tables Inserted with success 🚀")
+    #             # dbt_status = dbt_view(local_files_path)
+    #             # if not dbt_status:
+    #             #     st.sidebar.success('Dbt run with sucess 🚀')
+    #             #     creating_dash = dasboard_view(local_files_path)
+    #             # else:
+    #             #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
+    #             #     st.stop()
+    #         else:
+    #             st.sidebar.error(
+    #                 "Error inserting rows to tables ! Aborting Pipeline... ❌"
+    #             )
+    #             st.stop()
+    #     else:
+    #         st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
+    #         st.stop()
+    # else:
+    #     st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
+    #     st.stop()
+
+    # Testing Pydantic App Flow
+    pydantic_status = pydantic_view(local_files_path)
+    if not pydantic_status:
+        st.sidebar.success("Data Contract 🚀")
+        upload_s3_errors = upload_s3_view(local_files_path)
+        # transformation_to_postgres_status = transformation_to_postgres_view(
+        #     local_files_path
+        # )
+        # if not transformation_to_postgres_status:
+        #     st.sidebar.success("Tables Inserted with success 🚀")
+
+        # dbt_status = dbt_view(local_files_path)
+        # if not dbt_status:
+        #     st.sidebar.success('Dbt run with sucess 🚀')
+        #     creating_dash = dasboard_view(local_files_path)
+        # else:
+        #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
+        #     st.stop()
+    #     else:
+    #         st.sidebar.error(
+    #             "Error inserting rows to tables ! Aborting Pipeline... ❌"
+    #         )
+    #         st.stop()
+    # else:
+    #     st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
+    #     st.stop()
 
 
 if __name__ == "__main__":
