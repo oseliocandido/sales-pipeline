@@ -31,64 +31,35 @@ def main() -> None:
     local_files_path = list(
         base_data_path.glob(f"{valid_data_flag.lower()}/Target.csv")
     )
-
+    error_table = True
     # App Flow
-    # upload_s3_errors = upload_s3_view(local_files_path)
-    # if not upload_s3_errors:
-    #     st.sidebar.success("Upload to S3 🚀")
-    #     pydantic_errors = pydantic_view(local_files_path)
-    #     if not pydantic_errors:
-    #         st.sidebar.success("Data Contract 🚀")
-    #         transformation_to_postgres_errors = transformation_to_postgres_view(
-    #             local_files_path
-    #         )
-    #         if transformation_to_postgres_errors:
-    #             st.sidebar.success("Tables Inserted with success 🚀")
-    #             # dbt_status = dbt_view(local_files_path)
-    #             # if not dbt_status:
-    #             #     st.sidebar.success('Dbt run with sucess 🚀')
-    #             #     creating_dash = dasboard_view(local_files_path)
-    #             # else:
-    #             #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
-    #             #     st.stop()
-    #         else:
-    #             st.sidebar.error(
-    #                 "Error inserting rows to tables ! Aborting Pipeline... ❌"
-    #             )
-    #             st.stop()
-    #     else:
-    #         st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
-    #         st.stop()
-    # else:
-    #     st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
-    #     st.stop()
-
-    # Testing Pydantic App Flow
-    pydantic_status = pydantic_view(local_files_path)
-    if not pydantic_status:
-        st.sidebar.success("Data Contract 🚀")
-        upload_s3_errors = upload_s3_view(local_files_path)
-        # transformation_to_postgres_status = transformation_to_postgres_view(
-        #     local_files_path
-        # )
-        # if not transformation_to_postgres_status:
-        #     st.sidebar.success("Tables Inserted with success 🚀")
-
-        # dbt_status = dbt_view(local_files_path)
-        # if not dbt_status:
-        #     st.sidebar.success('Dbt run with sucess 🚀')
-        #     creating_dash = dasboard_view(local_files_path)
-        # else:
-        #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
-        #     st.stop()
-    #     else:
-    #         st.sidebar.error(
-    #             "Error inserting rows to tables ! Aborting Pipeline... ❌"
-    #         )
-    #         st.stop()
-    # else:
-    #     st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
-    #     st.stop()
+    upload_s3_error = upload_s3_view(local_files_path)
+    if not upload_s3_error:
+        st.sidebar.success("Upload to S3 🚀")
+        pydantic_error = pydantic_view(local_files_path)
+        if not pydantic_error:
+            st.sidebar.success("Data Contract 🚀")
+            pg_transformation_error = transformation_to_postgres_view(local_files_path)
+            if not pg_transformation_error:
+                st.sidebar.success("Tables Inserted with success 🚀")
+                # dbt_status = dbt_view(local_files_path)
+                # if not dbt_status:
+                #     st.sidebar.success('Dbt run with sucess 🚀')
+                #     creating_dash = dasboard_view(local_files_path)
+                # else:
+                #     st.sidebar.error("Error running dbt! Aborting Pipeline... ❌")
+                #     st.stop()
+            else:
+                st.sidebar.error(
+                    "Error inserting rows to tables ! Aborting Pipeline... ❌"
+                )
+                st.stop()
+        else:
+            st.sidebar.error("Validation failed! Aborting Pipeline... ❌")
+            st.stop()
+    else:
+        st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
+        st.stop()
 
 
 if __name__ == "__main__":
