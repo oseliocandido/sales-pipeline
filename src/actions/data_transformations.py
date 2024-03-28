@@ -4,32 +4,28 @@ from sqlalchemy import create_engine
 from pathlib import PosixPath
 from dotenv import dotenv_values
 from utils.logger import logger
+from pathlib import Path
 
 
 class TableTransformer:
     @staticmethod
-    def transform_target_table(dataframe):
-        # Specific transformations for the Target table
-        dataframe["TargetMonth"] = pd.to_datetime(
-            dataframe["TargetMonth"], format="%A, %B %d, %Y"
+    def transform_target_table(df: pd.DataFrame) -> pd.DataFrame:
+        df["TargetMonth"] = pd.to_datetime(df["TargetMonth"], format="%A, %B %d, %Y")
+        df["Target"] = (
+            df["Target"].replace({"\\$": "", ",": ""}, regex=True).astype(float)
         )
-        dataframe["Target"] = (
-            dataframe["Target"].replace({"\\$": "", ",": ""}, regex=True).astype(float)
-        )
-        dataframe.rename(
-            columns={
-                "EmployeeID": "employeeid",
-                "Target": "target",
-                "TargetMonth": "targetmonth",
-            },
-            inplace=True,
-        )
-        return dataframe
+        df.rename(columns=lambda x: x.lower(), inplace=True)
+        return df
 
     @staticmethod
-    def transform_products_table(dataframe):
-        # Specific transformations for the Products table
-        return dataframe
+    def transform_products_table(df: pd.DataFrame) -> pd.DataFrame:
+        df["Category"] = df["Category"].str.replace("Acessory", "Acessories")
+        df["Standard Cost"] = (
+            df["Standard Cost"].str.replace("$", "").str.replace(",", "").astype(float)
+        )
+        df.drop(columns=["Font Color Format"], inplace=True)
+        df.rename(columns=lambda x: x.replace(" ", "").lower(), inplace=True)
+        return df
 
     @staticmethod
     def transform(name: str) -> Callable[[pd.DataFrame], pd.DataFrame]:
@@ -73,6 +69,7 @@ class TableProcessor:
         return rows
 
 
+# Testing
 # if __name__ == "__main__":
-#     path = Path.cwd() / 'data/valid/Target.csv'
+#     path = Path.cwd().parent / 'data/valid/Target.csv'
 #     TableProcessor(path=path).run_pipeline()
