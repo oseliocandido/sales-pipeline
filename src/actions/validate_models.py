@@ -8,8 +8,7 @@ from models.models import SalesOrder
 from models.models import SalesPerson
 from models.models import Sales
 from utils.logger import logger
-import streamlit as st
-from pathlib import Path
+
 
 CLASS_MAP = {
     "Target": Target,
@@ -31,11 +30,5 @@ def validate_model(path: PosixPath) -> List[str]:
             target_class(**row.to_dict())
         except ValidationError as error:
             row_error = True
-            st.write(Path.cwd().resolve())
             logger.error(error)
     return row_error
-
-
-# bota isso pro arquivo de logs mostrando a linhaa
-# for error in validation_errors:
-# errors.append(f"{error_message} line {index}")
