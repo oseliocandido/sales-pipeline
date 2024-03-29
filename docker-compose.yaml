@@ -17,27 +17,6 @@ services:
       retries: 3
       start_period: 60s
     restart: always
-   
+ 
 volumes:
   pgdata:
-
-
-  # dbt:
-  #   container_name: dbt
-  #   build: 
-  #     context: ./containers/dbt/
-  #   volumes:
-  #     - ./containers/dbt/src:/usr/app/dbt/src
-  #     - ./containers/dbt/profiles.yml:/root/.dbt/profiles.yml
-  #   env_file:
-  #     - ./env/dbt.env
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "cd ./project && dbt debug || exit 1"]
-  #     interval: 40s
-  #     timeout: 30s
-  #     retries: 3
-  #     start_period: 60s
-  #   restart: always
-  #   tty: true
-  #   networks:
-  #     - network-padaria
