@@ -18,35 +18,32 @@ CREATE TABLE Target (
     LoadTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
     
+CREATE TABLE Sales (
+    SK_Sales SERIAL PRIMARY KEY,
+    SalesOrderNumber VARCHAR(15),
+    ProductKey VARCHAR(20),
+    Quantity INTEGER,
+    UnitPrice DECIMAL(10, 2),
+    Cost DECIMAL(10, 2),
+    LoadTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+CREATE TABLE SalesOrder (
+    SK_SalesOrder SERIAL PRIMARY KEY,
+    SalesOrderNumber VARCHAR(15),
+    OrderDate DATE,
+    ResellerKey INTEGER,
+    EmployeeKey INTEGER,
+    SalesTerritoryKey INTEGER,
+    LoadTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- CREATE TABLE Sales (
---     SalesOrderNumber VARCHAR(20),
---     ProductKey INTEGER,
---     Quantity INTEGER,
---     UnitPrice DECIMAL(10, 2)
--- );
-
--- CREATE TABLE SalesOrder (
---     SalesOrderNumber VARCHAR(20),
---     OrderDate DATE,
---     ResellerKey INTEGER,
---     EmployeeKey INTEGER,
---     SalesTerritoryKey INTEGER
--- );
-
--- CREATE TABLE SalesPerson (
---     EmployeeKey INTEGER PRIMARY KEY,
---     EmployeeID VARCHAR(20),
---     Salesperson VARCHAR(100),
---     Title VARCHAR(100),
---     UPN VARCHAR(100)
--- );
-
--- CREATE TABLE Target (
---     SK_Employee SERIAL PRIMARY KEY,
---     EmployeeID INTEGER,
---     Target DECIMAL(10,2),
---     TargetMonth DATE,
---     Load_Time DATETIMESTAMP,
--- );
+CREATE TABLE SalesPerson (
+    SK_SalesPerson SERIAL PRIMARY KEY,
+    EmployeeKey INTEGER,
+    EmployeeID INTEGER,
+    Salesperson VARCHAR(100),
+    Title VARCHAR(50),
+    UPN CHAR(320),
+    LoadTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

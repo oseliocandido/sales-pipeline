@@ -22,30 +22,6 @@ volumes:
   pgdata:
 
 
-# main:
-#     container_name: baseproject
-#     build: 
-#       context: ./containers/streamlit/
-#     ports:
-#       - '8501:8501'
-#     healthcheck:
-#       test: curl --fail http://localhost:8501/ || exit 1
-#       interval: 40s
-#       timeout: 30s
-#       retries: 3
-#       start_period: 30s
-#     networks:
-#       - network-padaria
-#     #restart: always
-#     depends_on:
-#       - database
-#     deploy:
-#       resources:
-#         limits:
-#           cpus: '0.5'  
-#           memory: 512M
-
-
   # dbt:
   #   container_name: dbt
   #   build: 
