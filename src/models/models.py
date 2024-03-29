@@ -17,20 +17,19 @@ class Products(BaseModel):
     Standard_Cost: str = Field(alias="Standard Cost")
     Color: Optional[str]
     Subcategory: str
-    Category: CategoryEnum = Field(
-        description="Category of the product", choices=CategoryEnum
-    )
+    Category: CategoryEnum = Field(choices=CategoryEnum)
     Background_Color: str = Field(default=None, alias="Background Color", max_length=7)
     Format_Font_Color_Format: Optional[str] = None
 
 
 class Sales(BaseModel):
     SalesOrderNumber: str
-    ProductKey: int
+    ProductKey: PositiveInt
     Quantity: PositiveInt
     Unit_Price: str = Field(alias="Unit Price")
+    Cost: str
 
-    @field_validator("Unit_Price")
+    @field_validator("Unit_Price", "Cost")
     @classmethod
     def parse_currency_string(cls, value):
         if value[0] == "$":
@@ -46,7 +45,7 @@ class Sales(BaseModel):
 
 
 class Target(BaseModel):
-    EmployeeID: int
+    EmployeeID: PositiveInt
     Target: str
     TargetMonth: str
 
@@ -77,9 +76,9 @@ class Target(BaseModel):
 class SalesOrder(BaseModel):
     SalesOrderNumber: str
     OrderDate: str
-    ResellerKey: int
-    EmployeeKey: int
-    SalesTerritoryKey: int
+    ResellerKey: PositiveInt
+    EmployeeKey: PositiveInt
+    SalesTerritoryKey: PositiveInt
 
     @field_validator("OrderDate")
     @classmethod
@@ -92,8 +91,8 @@ class SalesOrder(BaseModel):
 
 
 class SalesPerson(BaseModel):
-    EmployeeKey: int
-    EmployeeID: int
+    EmployeeKey: PositiveInt
+    EmployeeID: PositiveInt
     Salesperson: str
     Title: str
-    UPN: str
+    UPN: str = Field(max_length=320)
