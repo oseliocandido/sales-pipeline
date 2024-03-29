@@ -17,7 +17,6 @@ class S3Tasks:
             aws_secret_access_key=self.config["AWS_SECRET_ACCESS_KEY"],
         )
 
-    # Botar dps pra updr parquet e ler com duckdb
     def upload_s3(self, file_name: PosixPath, bucket: str, key: str) -> bool:
         try:
             self.s3_client.upload_file(Filename=file_name, Bucket=bucket, Key=key)
@@ -25,13 +24,3 @@ class S3Tasks:
             logger.error(error)
             return False
         return True
-
-    ## Not Used for while!
-    # def download_s3(self, bucket: str, key: str) -> BytesIO:
-    #     s3_io_data = BytesIO()
-    #     try:
-    #         self.s3_client.download_fileobj(bucket, key, s3_io_data)
-    #     except ClientError as error:
-    #         logger.error(error)
-    #         return False
-    #     return s3_io_data
