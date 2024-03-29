@@ -28,10 +28,8 @@ def main() -> None:
 
     # Local Path File
     base_data_path = Path.cwd().parent / "data"
-    local_files_path = list(
-        base_data_path.glob(f"{valid_data_flag.lower()}/Target.csv")
-    )
-    error_table = True
+    local_files_path = list(base_data_path.glob(f"{valid_data_flag.lower()}/*.csv"))
+
     # App Flow
     upload_s3_error = upload_s3_view(local_files_path)
     if not upload_s3_error:
@@ -60,6 +58,14 @@ def main() -> None:
     else:
         st.sidebar.error("Uploaded failed! Aborting Pipeline... ❌")
         st.stop()
+
+    # Test Flow
+    # pydantic_error = pydantic_view(local_files_path)
+    # if not pydantic_error:
+    #     st.sidebar.success("Data Contract 🚀")
+    #     pg_transformation_error = transformation_to_postgres_view(local_files_path)
+    #     if not pg_transformation_error:
+    #         st.sidebar.success("Tables Inserted with success 🚀")
 
 
 if __name__ == "__main__":
